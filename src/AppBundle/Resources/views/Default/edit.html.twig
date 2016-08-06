@@ -1,0 +1,10 @@
+<h1>Edit Post</h1>
+
+<form action="" method="post">
+    <input type="hidden"  name="id" value="{{ product.getId }}"><br>
+    <input type="text" placeholder="name" name="name" value="{{ product.getName }}"><br>
+    <input type="text" placeholder="price" name="price" value="{{ product.getPrice }}"><br>
+    <input type="text" placeholder="description" name="description" value="{{ product.getDescription }}"><br>
+    {#<input type="text" placeholder="created_at" name="created_at" value="{{ product.getCreatedAt }}"><br><br>#}
+    <input class="btn" type="submit" name="send">
+</form>

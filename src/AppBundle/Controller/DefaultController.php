@@ -2,11 +2,13 @@
 
 namespace AppBundle\Controller;
 
-//use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Entity\Product;
 use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
 class DefaultController extends Controller
 {
     /**
@@ -20,7 +22,10 @@ class DefaultController extends Controller
         ]);
     }
 
-// ...
+
+    /**
+     * @Route("/create", name="create")
+     */
     public function createAction()
     {
         $product = new Product();
@@ -36,10 +41,18 @@ class DefaultController extends Controller
         // actually executes the queries (i.e. the INSERT query)
         $em->flush();
 
-        return new Response('Saved new product with id ' . $product->getId());
+      //  $product->getId();
+
+        return $this->redirectToRoute('edit', ['productId' => $product->getId()]);
+
     }
 
 
+
+    /**
+     * @Route("/show/{productId}", name="show")
+     * @Template()
+     */
     public function showAction($productId)
     {
         $product = $this->getDoctrine()
@@ -52,9 +65,17 @@ class DefaultController extends Controller
             );
         }
 
+        return [
+           'product'=> $product
+        ];
+
+
         // ... do something, like pass the $product object into a template
     }
 
+    /**
+     * @Route("/update/{productId}", name="update")
+     */
     public function updateAction($productId)
     {
         $em = $this->getDoctrine()->getManager();
@@ -71,7 +92,39 @@ class DefaultController extends Controller
 
         return $this->redirectToRoute('homepage');
     }
+
+    /**
+     * @Route("/edit/{productId}", name="edit")
+     * @Template()
+     */
+    public function editAction($productId)
+    {
+
+        $product = $this->getDoctrine()
+            ->getRepository('AppBundle:Product')
+            ->find($productId);
+
+        if (isset($_POST['id'])) {
+            $product->setName($_POST['name']);
+            $product->setPrice($_POST['price']);
+            $product->setDescription($_POST['description']);
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($product);
+
+            $em->flush();
+
+        }
+
+        return [
+            'product'=> $product
+        ];
+
+    }
+
 }
+
 
 
 

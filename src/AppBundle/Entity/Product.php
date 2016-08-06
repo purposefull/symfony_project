@@ -36,6 +36,7 @@ class Product
      *
      * @return integer
      */
+
     public function getId()
     {
         return $this->id;
