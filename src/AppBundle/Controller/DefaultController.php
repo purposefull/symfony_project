@@ -15,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+
 class DefaultController extends Controller
 {
     /**
@@ -30,7 +31,7 @@ class DefaultController extends Controller
 
 
     /**
-     * @Route("/create", name="create")
+     * @Route("/create/1", name="create")
      */
     public function createAction()
     {
@@ -139,31 +140,27 @@ class DefaultController extends Controller
         // just setup a fresh $task object (remove the dummy data)
         $task = new Task();
 
-        $form = $this->createFormBuilder(TaskType::class, $task)
-            ->add('task', TextType::class)
-            ->add('dueDate', DateType::class, array('widget' => 'single_text'))
-            ->add('save', SubmitType::class, array('label' => 'Create Task'))
-            ->getForm();
+        $form = $this->createForm(TaskType::class, $task);
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             // $form->getData() holds the submitted values
             // but, the original `$task` variable has also been updated
-            $task = $form->get('dueDate')->getData();
+            $task = $form->getData();
 
             // ... perform some action, such as saving the task to the database
             // for example, if Task is a Doctrine entity, save it!
-            // $em = $this->getDoctrine()->getManager();
-            // $em->persist($task);
-            // $em->flush();
+             $em = $this->getDoctrine()->getManager();
+             $em->persist($task);
+             $em->flush();
 
-            return $this->redirectToRoute('task_success');
+            return $this->redirectToRoute('edit', array('productId' => $task->getId()));
         }
 
-        return $this->render('default/new.html.twig', array(
+        return array(
             'form' => $form->createView(),
-        ));
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -181,8 +178,4 @@ class DefaultController extends Controller
             ->add('save', SubmitType::class)
         ;
     }
-
 }
-
-
-

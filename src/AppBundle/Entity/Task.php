@@ -3,27 +3,52 @@
 namespace AppBundle\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping as ORM;
+
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="task")
+ */
+
 class Task
+
 {
-    /**
-     * @Assert\NotBlank()
-     */
-    public $task;
 
     /**
-     * @Assert\NotBlank()
-     * @Assert\Type("\DateTime")
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @ORM\Column(type="datetime")
      */
     protected $dueDate;
 
-    public function getTask()
-    {
-        return $this->task;
-    }
+    /**
+     * @ORM\Column(type="string")
+     */
+    public $task;
 
     public function setTask($task)
     {
         $this->task = $task;
+    }
+
+
+    public function getTask()
+    {
+        return $this->task;
     }
 
     public function getDueDate()
@@ -31,7 +56,7 @@ class Task
         return $this->dueDate;
     }
 
-    public function setDueDate(\DateTime $dueDate = null)
+    public function setDueDate( $dueDate = null)
     {
         $this->dueDate = $dueDate;
     }
