@@ -155,7 +155,7 @@ class DefaultController extends Controller
              $em->persist($task);
              $em->flush();
 
-            return $this->redirectToRoute('edit', array('productId' => $task->getId()));
+            return $this->redirectToRoute('edit', ['productId' => $task->getId()]);
         }
 
         return array(
