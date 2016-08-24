@@ -10,9 +10,7 @@ use Goutte\Client;
 
 class CreateUserCommand extends Command
 {
-    /**
-     * @Route("configure/1", name="configure")
-     */
+
     protected function configure()
     {
         $this
@@ -28,104 +26,13 @@ class CreateUserCommand extends Command
         ;
     }
 
-    /**
-     * @Route("execute/{productId}", name="execute")
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $client = new Client();
 
-        // Go to the symfony.com website
+        // Go to the booking.com website
         $crawler = $client->request('GET', 'http://www.booking.com/country.en-gb.html');
 
-        $html = <<<'HTML'
-<!DOCTYPE html>
-<html>
-    <body>
-        <div class="lp__flexible_layout_content_wrapper"</div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-        <div class="block_third" </div>
-    </body>
-</html>
-HTML;
-
-        $crawler = new Crawler($html);
 
         foreach ($crawler as $domElement) {
             var_dump($domElement->nodeName);
