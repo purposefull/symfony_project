@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Goutte\Client;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Doctrine\ORM\EntityManager;
-
+use Symfony\Component\Console\Helper\ProgressBar;
 class CreateUserCommand extends ContainerAwareCommand
 {
 
@@ -18,50 +18,70 @@ class CreateUserCommand extends ContainerAwareCommand
     {
         $this
             // the name of the command (the part after "bin/console")
-            ->setName('app:create-users')
-
+            ->setName('booking:parse-hotels')
             // the short description shown while running "php bin/console list"
-            ->setDescription('Creates new users.')
-
+            ->setDescription('Parcing and saving new hotels.')
             // the full command description shown when running the command with
             // the "--help" option
-            ->setHelp("This command allows you to create users...")
-        ;
+            ->setHelp("This command allows you to parcing and saving new hotels...");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+
+
+
         $client = new Client();
 
         // Go to the booking.com website
         $crawler = $client->request('GET', 'http://www.booking.com/country.en-gb.html');
 
         $crawler = $crawler->filter('body#b2countryPage > div#bodyconstraint > div#bodyconstraint-inner > div.lp_flexible_layout_content_wrapper > div#countryTmpl > div.block_third > div.block_header');
+        $progress = new ProgressBar($output,$crawler->count());
+        $progress->start();
+
+        $sumHotels = 0;
+
+        $sumCountries = 0;
+
+        $doctrine = $this->getContainer()->get('doctrine');
+
+        $em = $doctrine->getManager();
+
+        $em->getConnection()->exec( 'TRUNCATE TABLE countries');
 
         foreach ($crawler as $domElement) {
 
-            $CountriesNames = $domElement->getElementsByTagName('h2')->item(0)->textContent;
+            $CountryName = $domElement->getElementsByTagName('h2')->item(0)->textContent;
 
             $hotels = $domElement->getElementsByTagName('span')->item(0)->textContent;
 
-            $integer = (int) $hotels;
+            $integer = (int)$hotels;
 
-            var_dump((filter_var($integer, FILTER_VALIDATE_INT)));
+            $sumHotels = $hotels + $sumHotels;
 
-            var_dump($domElement->getElementsByTagName('span')->item(0)->textContent);
+            $sumCountries = $sumCountries + 1;
 
             $countries = new Countries();
-            $countries->setCountry($domElement->getElementsByTagName('h2')->item(0)->textContent);
-            $countries->setHotels($domElement->getElementsByTagName('span')->item(0)->textContent);
-
-            $doctrine = $this->getContainer()->get('doctrine');
-
-            $em = $doctrine->getManager();
+            $countries->setCountry($CountryName);
+            $countries->setHotels($integer);
 
             $em->persist($countries);
 
-            $em->flush();
+            //$em->flush();
 
-          }
-     }
+            $progress->advance();
+        }
+
+        $em->flush();
+
+
+
+        $progress->finish();
+
+        $output->writeln('');
+
+        $output->writeln('All is ok. We are saving<info> '.$sumCountries.' </info>countries and<info> '.$sumHotels. ' </info>hotels');
+    }
 }
