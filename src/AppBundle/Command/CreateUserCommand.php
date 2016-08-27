@@ -8,8 +8,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Goutte\Client;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Doctrine\ORM\EntityManager;
 
-class CreateUserCommand extends Command
+class CreateUserCommand extends ContainerAwareCommand
 {
 
     protected function configure()
@@ -38,17 +40,23 @@ class CreateUserCommand extends Command
 
         foreach ($crawler as $domElement) {
 
-            //var_dump($domElement->getElementsByTagName('h2')->item(0)->textContent);
+            $CountriesNames = $domElement->getElementsByTagName('h2')->item(0)->textContent;
+
+            $hotels = $domElement->getElementsByTagName('span')->item(0)->textContent;
+
+            $integer = (int) $hotels;
+
+            var_dump((filter_var($integer, FILTER_VALIDATE_INT)));
 
             var_dump($domElement->getElementsByTagName('span')->item(0)->textContent);
 
             $countries = new Countries();
-
-
             $countries->setCountry($domElement->getElementsByTagName('h2')->item(0)->textContent);
             $countries->setHotels($domElement->getElementsByTagName('span')->item(0)->textContent);
 
-            $em = $this->getDoctrine()->getManager();
+            $doctrine = $this->getContainer()->get('doctrine');
+
+            $em = $doctrine->getManager();
 
             $em->persist($countries);
 

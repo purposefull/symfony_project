@@ -22,7 +22,7 @@ class Countries
     private $country;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
     private $hotels;
 
