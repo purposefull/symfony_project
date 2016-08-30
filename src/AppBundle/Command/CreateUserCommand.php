@@ -2,6 +2,7 @@
 
 namespace AppBundle\Command;
 
+use AppBundle\Entity\Destination;
 use AppBundle\Entity\Countries;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Console\Command\Command;
@@ -20,18 +21,14 @@ class CreateUserCommand extends ContainerAwareCommand
             // the name of the command (the part after "bin/console")
             ->setName('booking:parse-hotels')
             // the short description shown while running "php bin/console list"
-            ->setDescription('Parcing and saving new hotels.')
+            ->setDescription('Parsing and saving new hotels.')
             // the full command description shown when running the command with
             // the "--help" option
-            ->setHelp("This command allows you to parcing and saving new hotels...");
+            ->setHelp("This command allows you to parsing and saving new hotels...");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
-
-
-
         $client = new Client();
 
         // Go to the booking.com website
@@ -49,7 +46,19 @@ class CreateUserCommand extends ContainerAwareCommand
 
         $em = $doctrine->getManager();
 
-        $em->getConnection()->exec( 'TRUNCATE TABLE countries');
+        $cmd = $em->getClassMetadata(Countries::class);
+        $connection = $em->getConnection();
+        $connection->beginTransaction();
+        try {
+            $db = $connection->getDatabasePlatform();
+            $connection->query('SET FOREIGN_KEY_CHECKS=0');
+            $sql = $db->getTruncateTableSql($cmd->getTableName());
+            $connection->executeUpdate($sql);
+            $connection->query('SET FOREIGN_KEY_CHECKS=1');
+        }
+        catch (\Exception $e) {
+            $connection->rollback();
+        }
 
         foreach ($crawler as $domElement) {
 
@@ -63,13 +72,15 @@ class CreateUserCommand extends ContainerAwareCommand
 
             $sumCountries = $sumCountries + 1;
 
+            $destination = new Destination();
+
+            //$destination->setCountry($country);
+
             $countries = new Countries();
             $countries->setCountry($CountryName);
             $countries->setHotels($integer);
 
             $em->persist($countries);
-
-            //$em->flush();
 
             $progress->advance();
         }

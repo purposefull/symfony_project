@@ -27,6 +27,27 @@ class Countries
     private $hotels;
 
     /**
+     * @ORM\OneToMany(targetEntity="Destination", mappedBy="countries")
+     */
+    protected $destinations;
+
+    /**
+     * @return mixed
+     */
+    public function getDestinations()
+    {
+        return $this->destinations;
+    }
+
+    /**
+     * @param mixed $destinations
+     */
+    public function setDestinations($destinations)
+    {
+        $this->destinations = $destinations;
+    }
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -68,4 +89,3 @@ class Countries
 
 
 }
-
