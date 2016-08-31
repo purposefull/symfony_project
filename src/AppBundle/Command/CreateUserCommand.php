@@ -12,7 +12,9 @@ use Goutte\Client;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Helper\ProgressBar;
+
 class CreateUserCommand extends ContainerAwareCommand
+
 {
 
     protected function configure()
@@ -34,8 +36,10 @@ class CreateUserCommand extends ContainerAwareCommand
         // Go to the booking.com website
         $crawler = $client->request('GET', 'http://www.booking.com/country.en-gb.html');
 
-        $crawler = $crawler->filter('body#b2countryPage > div#bodyconstraint > div#bodyconstraint-inner > div.lp_flexible_layout_content_wrapper > div#countryTmpl > div.block_third > div.block_header');
+        $crawler = $crawler->filter('body#b2countryPage > div#bodyconstraint > div#bodyconstraint-inner > div.lp_flexible_layout_content_wrapper > div#countryTmpl > div.block_third > div.block_header ');
+
         $progress = new ProgressBar($output,$crawler->count());
+
         $progress->start();
 
         $sumHotels = 0;
@@ -60,9 +64,11 @@ class CreateUserCommand extends ContainerAwareCommand
             $connection->rollback();
         }
 
+        $link = $crawler->selectLink('http://www.booking.com/country/gb.en-gb.html?label=gen173nr-1DCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEPyAEP2AED6AEB-AECqAID;sid=229aa607aea7d66975f8009f521b5932;inac=0&amp' )->link();
+
         foreach ($crawler as $domElement) {
 
-            $CountryName = $domElement->getElementsByTagName('h2')->item(0)->textContent;
+            $Country = $domElement->getElementsByTagName('h2')->item(0)->textContent;
 
             $hotels = $domElement->getElementsByTagName('span')->item(0)->textContent;
 
@@ -72,21 +78,22 @@ class CreateUserCommand extends ContainerAwareCommand
 
             $sumCountries = $sumCountries + 1;
 
-            $destination = new Destination();
+            foreach ($crawler as $link){
 
-            //$destination->setCountry($country);
+
+            }
 
             $countries = new Countries();
-            $countries->setCountry($CountryName);
+            $countries->setCountry($Country);
             $countries->setHotels($integer);
 
             $em->persist($countries);
+           // $em->persist($destinations);
 
             $progress->advance();
         }
 
         $em->flush();
-
 
 
         $progress->finish();
