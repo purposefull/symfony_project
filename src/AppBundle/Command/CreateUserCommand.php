@@ -8,10 +8,11 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Goutte\Client;
+use Goutte\Client as GoutteClient;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Helper\ProgressBar;
+use GuzzleHttp\Client;
 
 class CreateUserCommand extends ContainerAwareCommand
 
@@ -31,7 +32,7 @@ class CreateUserCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $client = new Client();
+        $client = new GoutteClient();
 
         // Go to the booking.com website
         $crawler = $client->request('GET', 'http://www.booking.com/country.en-gb.html');
@@ -64,8 +65,9 @@ class CreateUserCommand extends ContainerAwareCommand
             $connection->rollback();
         }
 
-        $link = $crawler->selectLink('http://www.booking.com/country/gb.en-gb.html?label=gen173nr-1DCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEPyAEP2AED6AEB-AECqAID;sid=229aa607aea7d66975f8009f521b5932;inac=0&amp' )->link();
+       // $link = $crawler->selectLink('http://www.booking.com/country/gb.en-gb.html?label=gen173nr-1DCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEPyAEP2AED6AEB-AECqAID;sid=229aa607aea7d66975f8009f521b5932;inac=0&amp' )->link();
 
+        // Parsing countries
         foreach ($crawler as $domElement) {
 
             $Country = $domElement->getElementsByTagName('h2')->item(0)->textContent;
@@ -74,12 +76,30 @@ class CreateUserCommand extends ContainerAwareCommand
 
             $integer = (int)$hotels;
 
-            $sumHotels = $hotels + $sumHotels;
+            $sumHotels = $integer + $sumHotels;
 
             $sumCountries = $sumCountries + 1;
 
-            foreach ($crawler as $link){
+            $link = $domElement->getElementsByTagName('a')->item(0);
 
+            //$destinationsHTML = $client->request('GET', 'http://www.booking.com/destinationfinder/countries'.$link->getAttribute('href').'?label=gen173nr-1FCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEKyAEM2AEB6AEB-AECqAID;sid=0cb973933061113d169d4d2f87211e41;dsf_source=5');
+
+            $client = new Client();
+            $res = $client->request('GET', 'https://api.github.com/user', [
+                'auth' => ['user', 'pass']
+            ]);
+            echo $res->getStatusCode();
+
+            $destinations = $destinationsHTML->filter('body > div');
+
+            var_dump($destinations->count());
+            exit();
+            // Parsing destinations
+            foreach ($destinations as $destination){
+
+                $destination = $domElement->getElementsByTagName('li')->item(0)->textContent;
+
+               // var_dump($destinations);
 
             }
 
