@@ -2,7 +2,8 @@
 
 namespace AppBundle\Command;
 
-use AppBundle\Entity\Destination;
+
+use AppBundle\Entity\City;
 use AppBundle\Entity\Countries;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Console\Command\Command;
@@ -65,8 +66,6 @@ class CreateUserCommand extends ContainerAwareCommand
             $connection->rollback();
         }
 
-       // $link = $crawler->selectLink('http://www.booking.com/country/gb.en-gb.html?label=gen173nr-1DCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEPyAEP2AED6AEB-AECqAID;sid=229aa607aea7d66975f8009f521b5932;inac=0&amp' )->link();
-
         // Parsing countries
         foreach ($crawler as $domElement) {
 
@@ -82,33 +81,27 @@ class CreateUserCommand extends ContainerAwareCommand
 
             $link = $domElement->getElementsByTagName('a')->item(0);
 
-            //$destinationsHTML = $client->request('GET', 'http://www.booking.com/destinationfinder/countries'.$link->getAttribute('href').'?label=gen173nr-1FCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEKyAEM2AEB6AEB-AECqAID;sid=0cb973933061113d169d4d2f87211e41;dsf_source=5');
+            $citiesHTML = $client->request('GET', 'http://www.booking.com/country/gb.en-gb.html?label=gen173nr-1DCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEPyAEP2AED6AEB-AECqAID;sid=229aa607aea7d66975f8009f521b5932;inac=0&');
 
-            $client = new Client();
-            $res = $client->request('GET', 'https://api.github.com/user', [
-                'auth' => ['user', 'pass']
-            ]);
-            echo $res->getStatusCode();
+            $cities = $citiesHTML->filter('body > div.slinks > div.in-and-around.clearfix > ul.ia-body.clearfix > li.ia-section.active');
 
-            $destinations = $destinationsHTML->filter('body > div');
+            var_dump($cities->count());
 
-            var_dump($destinations->count());
-            exit();
-            // Parsing destinations
-            foreach ($destinations as $destination){
+            // Parsing cities
+            foreach ($cities as $city){
 
-                $destination = $domElement->getElementsByTagName('li')->item(0)->textContent;
+                $city = $domElement->getElementsByTagName('li')->item(0)->textContent;
 
-               // var_dump($destinations);
+                var_dump($city);
 
             }
 
+            exit();
             $countries = new Countries();
             $countries->setCountry($Country);
             $countries->setHotels($integer);
 
             $em->persist($countries);
-           // $em->persist($destinations);
 
             $progress->advance();
         }

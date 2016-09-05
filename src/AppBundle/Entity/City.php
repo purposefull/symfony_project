@@ -7,12 +7,12 @@ use AppBundle\Entity\Countries;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="destinations")
+ * @ORM\Table(name="cities")
  */
-class Destination
+class City
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Countries", inversedBy="destinations")
+     * @ORM\ManyToOne(targetEntity="Countries", inversedBy="cities")
      * @ORM\JoinColumn(name="country_id", referencedColumnName="id")
      */
     protected $country;

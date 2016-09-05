@@ -27,24 +27,24 @@ class Countries
     private $hotels;
 
     /**
-     * @ORM\OneToMany(targetEntity="Destination", mappedBy="countries")
+     * @ORM\OneToMany(targetEntity="City", mappedBy="countries")
      */
-    protected $destinations;
+    protected $cities;
 
     /**
      * @return mixed
      */
-    public function getDestinations()
+    public function getCities()
     {
-        return $this->destinations;
+        return $this->cities;
     }
 
     /**
-     * @param mixed $destinations
+     * @param mixed $cities
      */
-    public function setDestinations($destinations)
+    public function setCities($cities)
     {
-        $this->destinations = $destinations;
+        $this->cities = $cities;
     }
 
     /**
