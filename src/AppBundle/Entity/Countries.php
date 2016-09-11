@@ -32,6 +32,27 @@ class Countries
     protected $cities;
 
     /**
+     * @ORM\OneToMany(targetEntity="Airport", mappedBy="countries")
+     */
+    protected $airports;
+
+    /**
+     * @return mixed
+     */
+    public function getAirports()
+    {
+        return $this->airports;
+    }
+
+    /**
+     * @param mixed $airports
+     */
+    public function setAirports($airports)
+    {
+        $this->airports = $airports;
+    }
+
+    /**
      * @return mixed
      */
     public function getCities()

@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Helper\ProgressBar;
 use GuzzleHttp\Client;
+use AppBundle\Entity\Airport;
 
 class CreateUserCommand extends ContainerAwareCommand
 
@@ -69,6 +70,8 @@ class CreateUserCommand extends ContainerAwareCommand
         // Parsing countries
         foreach ($crawler as $domElement) {
 
+            $countries = new Countries();
+
             $Country = $domElement->getElementsByTagName('h2')->item(0)->textContent;
 
             $hotels = $domElement->getElementsByTagName('span')->item(0)->textContent;
@@ -81,26 +84,30 @@ class CreateUserCommand extends ContainerAwareCommand
 
             $link = $domElement->getElementsByTagName('a')->item(0);
 
-            $citiesHTML = $client->request('GET', 'http://www.booking.com/country/gb.en-gb.html?label=gen173nr-1DCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEPyAEP2AED6AEB-AECqAID;sid=229aa607aea7d66975f8009f521b5932;inac=0&');
+            $HTML = $client->request('GET', 'http://www.booking.com/country/gb.en-gb.html?label=gen173nr-1DCAIoggJCAlhYSAliBW5vcmVmaOkBiAEBmAEuuAEPyAEP2AED6AEB-AECqAID;sid=229aa607aea7d66975f8009f521b5932;inac=0&');
 
-            $cities = $citiesHTML->filter('body > div.slinks > div.in-and-around.clearfix > ul.ia-body.clearfix > li.ia-section.active');
+            $airports = $HTML->filter('ul.ia_body.clearfix > li.ia_section.active')->siblings()->first()->filter('ul > li > a.ia_link');
 
-            var_dump($cities->count());
+            //Parsing airports
+            foreach ($airports as $airport) {
 
-            // Parsing cities
-            foreach ($cities as $city){
+                $airport->textContent;
 
-                $city = $domElement->getElementsByTagName('li')->item(0)->textContent;
-
-                var_dump($city);
-
+                $countries->setAirports($airport);
             }
 
-            exit();
-            $countries = new Countries();
+            $cities = $HTML->filter('ul.ia_body.clearfix > li.ia_section.active > ul > li > a.ia_link');
+            
+            // Parsing cities
+            foreach ($cities as $city) {
+
+                $city->textContent;
+
+                $countries->setCities($city);
+            }
+
             $countries->setCountry($Country);
             $countries->setHotels($integer);
-
             $em->persist($countries);
 
             $progress->advance();
