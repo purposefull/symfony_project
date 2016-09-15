@@ -2,9 +2,8 @@
 
 namespace AppBundle\Command;
 
-
 use AppBundle\Entity\City;
-use AppBundle\Entity\Countries;
+use AppBundle\Entity\Country;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -39,7 +38,7 @@ class CreateUserCommand extends ContainerAwareCommand
         // Go to the booking.com website
         $crawler = $client->request('GET', 'http://www.booking.com/country.en-gb.html');
 
-        $crawler = $crawler->filter('body#b2countryPage > div#bodyconstraint > div#bodyconstraint-inner > div.lp_flexible_layout_content_wrapper > div#countryTmpl > div.block_third > div.block_header ');
+        $crawler = $crawler->filter('body#b2countryPage > div#bodyconstraint > div#bodyconstraint-inner > div.lp_flexible_layout_content_wrapper > div#countryTmpl > div.block_third > div.block_header');
 
         $progress = new ProgressBar($output,$crawler->count());
 
@@ -53,26 +52,19 @@ class CreateUserCommand extends ContainerAwareCommand
 
         $em = $doctrine->getManager();
 
-        $cmd = $em->getClassMetadata(Countries::class);
         $connection = $em->getConnection();
-        $connection->beginTransaction();
-        try {
-            $db = $connection->getDatabasePlatform();
-            $connection->query('SET FOREIGN_KEY_CHECKS=0');
-            $sql = $db->getTruncateTableSql($cmd->getTableName());
-            $connection->executeUpdate($sql);
-            $connection->query('SET FOREIGN_KEY_CHECKS=1');
-        }
-        catch (\Exception $e) {
-            $connection->rollback();
-        }
+
+
+        $sql = $connection->exec("TRUNCATE TABLE cities");
+        $sqla = $connection->exec("TRUNCATE TABLE airports");
+        $sqlc = $connection->exec("DELETE FROM countries");
 
         // Parsing countries
         foreach ($crawler as $domElement) {
 
-            $countries = new Countries();
+            $country = new Country();
 
-            $Country = $domElement->getElementsByTagName('h2')->item(0)->textContent;
+            $CountryName = $domElement->getElementsByTagName('h2')->item(0)->textContent;
 
             $hotels = $domElement->getElementsByTagName('span')->item(0)->textContent;
 
@@ -88,29 +80,40 @@ class CreateUserCommand extends ContainerAwareCommand
 
             $airports = $HTML->filter('ul.ia_body.clearfix > li.ia_section.active')->siblings()->first()->filter('ul > li > a.ia_link');
 
-            //Parsing airports
-            foreach ($airports as $airport) {
-
-                $airport->textContent;
-
-                $countries->setAirports($airport);
-            }
-
             $cities = $HTML->filter('ul.ia_body.clearfix > li.ia_section.active > ul > li > a.ia_link');
-            
+
             // Parsing cities
-            foreach ($cities as $city) {
+            foreach ($cities as $cityNode) {
 
-                $city->textContent;
+                $cityNode->textContent;
 
-                $countries->setCities($city);
+                $city = new City();
+                $city->setCountry($country);
+                $city->setName($cityNode->textContent);
+                $city->setHotels($integer);
+                $em->persist($city);
             }
 
-            $countries->setCountry($Country);
-            $countries->setHotels($integer);
-            $em->persist($countries);
+            //Parsing airports
+            foreach ($airports as $airportNode) {
+
+                $airportNode->textContent;
+
+                $airport = new Airport();
+                $airport->setCountry($country);
+                $airport->setName($airportNode->textContent);
+                $em->persist($airport);
+            }
+
+
+
+            $country->setName($CountryName);
+            $country->setHotels($integer);
+            $em->persist($country);
 
             $progress->advance();
+
+            break;
         }
 
         $em->flush();

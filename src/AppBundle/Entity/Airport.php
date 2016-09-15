@@ -3,7 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use AppBundle\Entity\Countries;
+use AppBundle\Entity\Country;
 
 /**
  * @ORM\Entity
@@ -12,7 +12,7 @@ use AppBundle\Entity\Countries;
 class Airport
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Countries", inversedBy="airports")
+     * @ORM\ManyToOne(targetEntity="Country", cascade={"persist"}, inversedBy="airports")
      * @ORM\JoinColumn(name="country_id", referencedColumnName="id")
      */
     protected $country;
@@ -23,6 +23,11 @@ class Airport
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    protected $name;
 
     /**
      * @return mixed
@@ -40,7 +45,20 @@ class Airport
         $this->country = $country;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
 
 }

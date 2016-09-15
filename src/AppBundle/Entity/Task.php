@@ -42,7 +42,6 @@ class Task
         $this->task = $task;
     }
 
-
     public function getTask()
     {
         return $this->task;

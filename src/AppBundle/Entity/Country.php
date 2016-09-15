@@ -2,12 +2,13 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="countries")
  */
-class Countries
+class Country
 {
     /**
      * @ORM\Column(type="integer")
@@ -19,7 +20,7 @@ class Countries
     /**
      * @ORM\Column(type="string")
      */
-    private $country;
+    private $name;
 
     /**
      * @ORM\Column(type="integer")
@@ -27,12 +28,12 @@ class Countries
     private $hotels;
 
     /**
-     * @ORM\OneToMany(targetEntity="City", mappedBy="countries")
+     * @ORM\OneToMany(targetEntity="City", mappedBy="Country")
      */
     protected $cities;
 
     /**
-     * @ORM\OneToMany(targetEntity="Airport", mappedBy="countries")
+     * @ORM\OneToMany(targetEntity="Airport", mappedBy="Country")
      */
     protected $airports;
 
@@ -79,17 +80,17 @@ class Countries
     /**
      * @return mixed
      */
-    public function getCountry()
+    public function getName()
     {
-        return $this->country;
+        return $this->name;
     }
 
     /**
-     * @param mixed $country
+     * @param mixed $name
      */
-    public function setCountry($country)
+    public function setName($name)
     {
-        $this->country = $country;
+        $this->name = $name;
     }
 
     /**
@@ -107,6 +108,5 @@ class Countries
     {
         $this->hotels = $hotels;
     }
-
 
 }
